@@ -78,7 +78,7 @@ class UserViewSet(viewsets.ModelViewSet):
             actor=request.user,
             actor_type="User",
             actor_identifier=request.user.email,
-            action="user.deleted",
+            action="user.deactivated",
             target_type="User",
             target_id=instance.id,
             detail={"email": instance.email},
