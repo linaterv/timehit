@@ -146,10 +146,10 @@ export function EditUserDialog({
                 <SelectValue placeholder="Select role" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="admin">Admin</SelectItem>
-                <SelectItem value="clerk">Clerk</SelectItem>
-                <SelectItem value="contractor">Contractor</SelectItem>
-                <SelectItem value="client_approver">Client Approver</SelectItem>
+                <SelectItem value="ADMIN">Admin</SelectItem>
+                <SelectItem value="CLERK">Clerk</SelectItem>
+                <SelectItem value="CONTRACTOR">Contractor</SelectItem>
+                <SelectItem value="CLIENT_APPROVER">Client Approver</SelectItem>
               </SelectContent>
             </Select>
             {fieldErrors.role && (

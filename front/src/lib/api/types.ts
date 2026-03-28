@@ -1,4 +1,4 @@
-export type UserRole = "admin" | "clerk" | "contractor" | "client_approver";
+export type UserRole = "ADMIN" | "CLERK" | "CONTRACTOR" | "CLIENT_APPROVER";
 
 export type TimesheetStatus =
   | "draft"
@@ -14,6 +14,7 @@ export interface User {
   last_name: string;
   role: UserRole;
   is_active: boolean;
+  date_joined?: string;
 }
 
 export interface Client {
@@ -89,6 +90,7 @@ export interface PaginatedResponse<T> {
 export interface AuthTokens {
   access: string;
   refresh: string;
+  user: User;
 }
 
 export interface LoginCredentials {

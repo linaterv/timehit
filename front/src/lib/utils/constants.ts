@@ -1,4 +1,4 @@
-import type { TimesheetStatus } from "@/lib/api/types";
+import type { TimesheetStatus, UserRole } from "@/lib/api/types";
 
 export const TIMESHEET_STATUS_COLORS: Record<TimesheetStatus, string> = {
   draft: "bg-gray-100 text-gray-700",
@@ -16,9 +16,16 @@ export const TIMESHEET_STATUS_LABELS: Record<TimesheetStatus, string> = {
   invoiced: "Invoiced",
 };
 
-export const ROLE_LABELS: Record<string, string> = {
-  admin: "Admin",
-  clerk: "Clerk",
-  contractor: "Contractor",
-  client_approver: "Client Approver",
+export const ROLE_LABELS: Record<UserRole, string> = {
+  ADMIN: "Admin",
+  CLERK: "Clerk",
+  CONTRACTOR: "Contractor",
+  CLIENT_APPROVER: "Client Approver",
+};
+
+export const ROLE_BADGE_COLORS: Record<UserRole, string> = {
+  ADMIN: "bg-red-100 text-red-700 hover:bg-red-100",
+  CLERK: "bg-blue-100 text-blue-700 hover:bg-blue-100",
+  CONTRACTOR: "bg-green-100 text-green-700 hover:bg-green-100",
+  CLIENT_APPROVER: "bg-amber-100 text-amber-700 hover:bg-amber-100",
 };

@@ -1,7 +1,7 @@
 "use client";
 
 import type { User } from "@/lib/api/types";
-import { ROLE_LABELS } from "@/lib/utils/constants";
+import { ROLE_LABELS, ROLE_BADGE_COLORS } from "@/lib/utils/constants";
 import { formatFullName } from "@/lib/utils/formatting";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -20,13 +20,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { MoreHorizontal, Pencil, UserX } from "lucide-react";
-
-const ROLE_VARIANT: Record<string, string> = {
-  admin: "bg-red-100 text-red-700 hover:bg-red-100",
-  clerk: "bg-blue-100 text-blue-700 hover:bg-blue-100",
-  contractor: "bg-green-100 text-green-700 hover:bg-green-100",
-  client_approver: "bg-amber-100 text-amber-700 hover:bg-amber-100",
-};
 
 interface UserTableProps {
   users: User[];
@@ -56,7 +49,7 @@ export function UserTable({ users, onEdit, onDeactivate }: UserTableProps) {
             <TableCell>
               <Badge
                 variant="secondary"
-                className={ROLE_VARIANT[user.role] ?? ""}
+                className={ROLE_BADGE_COLORS[user.role] ?? ""}
               >
                 {ROLE_LABELS[user.role] ?? user.role}
               </Badge>

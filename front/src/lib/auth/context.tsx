@@ -47,9 +47,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [fetchUser]);
 
   const login = async (credentials: LoginCredentials) => {
-    const tokens = await authApi.login(credentials);
-    setTokens(tokens.access, tokens.refresh);
-    await fetchUser();
+    const response = await authApi.login(credentials);
+    setTokens(response.access, response.refresh);
+    // Use user from login response directly
+    if (response.user) {
+      setUser(response.user);
+    } else {
+      await fetchUser();
+    }
   };
 
   const logout = () => {

@@ -32,7 +32,7 @@ import { ApiError } from "@/lib/api/client";
 export default function AdminUsersPage() {
   const router = useRouter();
   const { user: currentUser, isLoading: authLoading } = useAuth();
-  const [roleFilter, setRoleFilter] = useState<UserRole | "all">("all");
+  const [roleFilter, setRoleFilter] = useState<UserRole | "all" | "">("all");
   const activeFilter = roleFilter === "all" ? "" : roleFilter;
   const { data, isLoading, error } = useUsers(activeFilter);
   const deactivateUser = useDeactivateUser();
@@ -43,7 +43,7 @@ export default function AdminUsersPage() {
 
   // Redirect non-admins
   useEffect(() => {
-    if (!authLoading && currentUser && currentUser.role !== "admin") {
+    if (!authLoading && currentUser && currentUser.role !== "ADMIN") {
       router.replace("/dashboard");
     }
   }, [authLoading, currentUser, router]);
@@ -59,7 +59,7 @@ export default function AdminUsersPage() {
     );
   }
 
-  if (currentUser.role !== "admin") return null;
+  if (currentUser.role !== "ADMIN") return null;
 
   async function handleDeactivate() {
     if (!deactivateTarget) return;
@@ -101,10 +101,10 @@ export default function AdminUsersPage() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Roles</SelectItem>
-            <SelectItem value="admin">Admin</SelectItem>
-            <SelectItem value="clerk">Clerk</SelectItem>
-            <SelectItem value="contractor">Contractor</SelectItem>
-            <SelectItem value="client_approver">Client Approver</SelectItem>
+            <SelectItem value="ADMIN">Admin</SelectItem>
+            <SelectItem value="CLERK">Clerk</SelectItem>
+            <SelectItem value="CONTRACTOR">Contractor</SelectItem>
+            <SelectItem value="CLIENT_APPROVER">Client Approver</SelectItem>
           </SelectContent>
         </Select>
       </div>
