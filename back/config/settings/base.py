@@ -123,6 +123,7 @@ SIMPLE_JWT = {
 # CORS
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
+    "http://192.168.0.115:3000",
 ]
 
 # drf-spectacular
