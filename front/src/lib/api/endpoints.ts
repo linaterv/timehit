@@ -96,7 +96,10 @@ export const userApi = {
       body: JSON.stringify(data),
     }),
   deactivate: (id: number) =>
-    apiClient<void>(`/api/users/${id}/`, { method: "DELETE" }),
+    apiClient<User>(`/api/users/${id}/`, {
+      method: "PATCH",
+      body: JSON.stringify({ is_active: false }),
+    }),
 };
 
 // Clients
