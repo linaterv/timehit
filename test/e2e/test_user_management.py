@@ -1,169 +1,173 @@
 """E2E tests for user management at /admin/users.
 
-DEFECT: React hydration is broken — the Next.js dev server fails to hydrate
-client-side React components. The users page shows a perpetual loading skeleton
-because no JS executes to fetch user data from the API. All tests are marked
-xfail until hydration is fixed.
+Important: tokens are stored in-memory by the frontend. After login, use
+client-side navigation (sidebar clicks), NOT page.goto() to other pages.
 """
 
 from __future__ import annotations
 
+import uuid
 import pytest
+import httpx
 from playwright.sync_api import Page, expect
 
-HYDRATION_BROKEN = pytest.mark.xfail(
-    reason="DEFECT: React hydration broken — client JS not attaching event handlers"
-)
-
-
-@pytest.fixture()
-def logged_in_admin(page: Page, admin_tokens):
-    """Navigate to login and authenticate as admin.
-
-    Since hydration is broken, we attempt to inject tokens directly into
-    localStorage and navigate. This fixture will work once hydration is fixed.
-    """
-    page.goto("/login")
-    page.wait_for_load_state("networkidle")
-
-    # Inject auth tokens into localStorage (matches typical Next.js auth patterns)
-    tokens = admin_tokens
-    page.evaluate(
-        """([access, refresh, user]) => {
-            localStorage.setItem('access_token', access);
-            localStorage.setItem('refresh_token', refresh);
-            localStorage.setItem('user', JSON.stringify(user));
-        }""",
-        [tokens["access"], tokens["refresh"], tokens["user"]],
-    )
-    return page
+API_BASE_URL = "http://192.168.0.115:8000"
 
 
 class TestUserListPage:
     """Tests for the /admin/users page."""
 
-    @HYDRATION_BROKEN
     def test_users_page_shows_user_table(self, logged_in_admin):
         """Admin navigating to /admin/users sees the user table."""
         page = logged_in_admin
-        page.goto("/admin/users")
-        page.wait_for_load_state("networkidle")
+        page.get_by_test_id("sidebar-nav-admin-users").click()
+        page.wait_for_url("**/admin/users**", timeout=5000)
 
-        table = page.get_by_test_id("user-table")
-        expect(table).to_be_visible(timeout=10000)
+        expect(page.get_by_test_id("user-table")).to_be_visible(timeout=10000)
 
-    @HYDRATION_BROKEN
     def test_users_page_has_create_button(self, logged_in_admin):
         """Admin sees a create-user button."""
         page = logged_in_admin
-        page.goto("/admin/users")
-        page.wait_for_load_state("networkidle")
+        page.get_by_test_id("sidebar-nav-admin-users").click()
+        page.wait_for_url("**/admin/users**", timeout=5000)
 
-        btn = page.get_by_test_id("create-user-button")
-        expect(btn).to_be_visible(timeout=10000)
+        expect(page.get_by_test_id("create-user-button")).to_be_visible(timeout=10000)
 
-    @HYDRATION_BROKEN
     def test_users_page_has_role_filter(self, logged_in_admin):
         """Admin sees a role filter on the users page."""
         page = logged_in_admin
-        page.goto("/admin/users")
-        page.wait_for_load_state("networkidle")
+        page.get_by_test_id("sidebar-nav-admin-users").click()
+        page.wait_for_url("**/admin/users**", timeout=5000)
 
-        filt = page.get_by_test_id("role-filter")
-        expect(filt).to_be_visible(timeout=10000)
+        expect(page.get_by_test_id("role-filter")).to_be_visible(timeout=10000)
 
 
 class TestCreateUser:
     """Tests for creating a user via the UI."""
 
-    @HYDRATION_BROKEN
     def test_create_user_dialog_opens(self, logged_in_admin):
         """Clicking create-user-button opens the create dialog."""
         page = logged_in_admin
-        page.goto("/admin/users")
-        page.wait_for_load_state("networkidle")
+        page.get_by_test_id("sidebar-nav-admin-users").click()
+        page.wait_for_url("**/admin/users**", timeout=5000)
+        expect(page.get_by_test_id("user-table")).to_be_visible(timeout=10000)
 
         page.get_by_test_id("create-user-button").click()
-        dialog = page.get_by_test_id("create-user-dialog")
-        expect(dialog).to_be_visible(timeout=5000)
+        expect(page.get_by_test_id("create-user-dialog")).to_be_visible(timeout=5000)
 
-    @HYDRATION_BROKEN
-    def test_create_user_via_dialog(self, logged_in_admin, unique_email, admin_tokens):
-        """Admin creates a new user through the create dialog."""
+    def test_create_user_via_dialog(self, logged_in_admin, admin_api_token):
+        """Admin creates a new user through the create dialog and it appears in the table."""
         page = logged_in_admin
-        page.goto("/admin/users")
-        page.wait_for_load_state("networkidle")
+        page.get_by_test_id("sidebar-nav-admin-users").click()
+        page.wait_for_url("**/admin/users**", timeout=5000)
+        expect(page.get_by_test_id("user-table")).to_be_visible(timeout=10000)
+
+        email = f"e2e-create-{uuid.uuid4().hex[:8]}@timehit.local"
 
         # Open dialog
         page.get_by_test_id("create-user-button").click()
         dialog = page.get_by_test_id("create-user-dialog")
         expect(dialog).to_be_visible(timeout=5000)
 
-        # Fill in user details
-        dialog.get_by_label("Email").fill(unique_email)
-        dialog.get_by_label("Password").fill("TestPass123!")
-        dialog.get_by_label("First name").fill("E2E")
-        dialog.get_by_label("Last name").fill("Created")
+        # Fill in user details using data-testid attributes
+        dialog.get_by_test_id("user-firstname-input").fill("Created")
+        dialog.get_by_test_id("user-lastname-input").fill("ByE2E")
+        dialog.get_by_test_id("user-email-input").fill(email)
+        dialog.get_by_test_id("user-password-input").fill("TestPass123!")
+
+        # Select role
+        dialog.get_by_test_id("user-role-select").click()
+        page.get_by_role("option", name="CONTRACTOR").click()
 
         # Submit
-        dialog.get_by_role("button", name="Create").click()
+        dialog.get_by_role("button", name="Create User").click()
+        page.wait_for_timeout(2000)
 
         # Verify user appears in table
         table = page.get_by_test_id("user-table")
-        expect(table).to_contain_text(unique_email, timeout=5000)
+        expect(table).to_contain_text(email, timeout=5000)
+
+        # Cleanup via API
+        resp = httpx.get(
+            f"{API_BASE_URL}/api/users/",
+            headers={"Authorization": f"Bearer {admin_api_token}"},
+        )
+        users = resp.json()["results"]
+        created = next((u for u in users if u["email"] == email), None)
+        if created:
+            httpx.delete(
+                f"{API_BASE_URL}/api/users/{created['id']}/",
+                headers={"Authorization": f"Bearer {admin_api_token}"},
+            )
 
 
 class TestEditUser:
     """Tests for editing a user via the UI."""
 
-    @HYDRATION_BROKEN
-    def test_edit_user(self, logged_in_admin, created_e2e_user):
-        """Admin edits a user's name via the user table."""
+    def test_edit_user_name(self, logged_in_admin, created_e2e_user, admin_api_token):
+        """Admin edits a user's first name via the edit dialog."""
         page = logged_in_admin
-        page.goto("/admin/users")
-        page.wait_for_load_state("networkidle")
+        page.get_by_test_id("sidebar-nav-admin-users").click()
+        page.wait_for_url("**/admin/users**", timeout=5000)
+        expect(page.get_by_test_id("user-table")).to_be_visible(timeout=10000)
 
-        # Find the user row and click edit
-        table = page.get_by_test_id("user-table")
-        expect(table).to_be_visible(timeout=10000)
-        expect(table).to_contain_text(created_e2e_user["email"], timeout=5000)
+        user_id = created_e2e_user["id"]
 
-        # Click edit on the user's row
-        row = table.locator(f"tr:has-text('{created_e2e_user['email']}')")
-        row.get_by_role("button", name="Edit").click()
+        # Find the user row and open actions
+        row = page.get_by_test_id(f"user-row-{user_id}")
+        expect(row).to_be_visible(timeout=5000)
+        row.get_by_role("button", name="Actions").click()
+        page.get_by_role("menuitem", name="Edit").click()
+        page.wait_for_timeout(1000)
 
-        # Update the name
-        page.get_by_label("First name").clear()
-        page.get_by_label("First name").fill("Updated")
-        page.get_by_role("button", name="Save").click()
+        # Edit first name
+        firstname = page.get_by_test_id("user-firstname-input")
+        firstname.clear()
+        firstname.fill("Edited")
 
-        # Verify
-        expect(table).to_contain_text("Updated", timeout=5000)
+        # Save
+        page.get_by_role("button", name="Save Changes").click()
+        page.wait_for_timeout(2000)
+
+        # Verify the table reflects the change
+        expect(row).to_contain_text("Edited", timeout=5000)
 
 
 class TestDeactivateUser:
     """Tests for deactivating a user via the UI."""
 
-    @HYDRATION_BROKEN
-    def test_deactivate_user(self, logged_in_admin, created_e2e_user):
-        """Admin deactivates a user from the user table."""
+    @pytest.mark.xfail(
+        reason="DEFECT: Deactivate button sends DELETE instead of PATCH {is_active: false}. "
+        "User is permanently deleted instead of deactivated."
+    )
+    def test_deactivate_user(self, logged_in_admin, created_e2e_user, admin_api_token):
+        """Admin deactivates a user from the actions dropdown.
+
+        DEFECT: The frontend "Deactivate" button sends DELETE /api/users/{id}/
+        (which permanently removes the user) instead of PATCH /api/users/{id}/
+        with {is_active: false}. The user disappears from the table entirely
+        rather than showing as Inactive. This is a data loss bug.
+        """
         page = logged_in_admin
-        page.goto("/admin/users")
-        page.wait_for_load_state("networkidle")
+        page.get_by_test_id("sidebar-nav-admin-users").click()
+        page.wait_for_url("**/admin/users**", timeout=5000)
+        expect(page.get_by_test_id("user-table")).to_be_visible(timeout=10000)
 
-        table = page.get_by_test_id("user-table")
-        expect(table).to_be_visible(timeout=10000)
+        user_id = created_e2e_user["id"]
 
-        # Find user row and deactivate
-        row = table.locator(f"tr:has-text('{created_e2e_user['email']}')")
-        row.get_by_role("button", name="Deactivate").click()
+        # Find the user row and open actions
+        row = page.get_by_test_id(f"user-row-{user_id}")
+        expect(row).to_be_visible(timeout=5000)
+        row.get_by_role("button", name="Actions").click()
 
-        # Confirm deactivation if there's a confirmation dialog
-        page.wait_for_timeout(500)
-        confirm = page.get_by_role("button", name="Confirm")
-        if confirm.is_visible():
-            confirm.click()
+        # Click deactivate in the dropdown
+        page.get_by_test_id(f"deactivate-user-button-{user_id}").click()
 
-        # Verify user shows as inactive
-        page.wait_for_timeout(1000)
+        # Confirm in the confirmation dialog
+        dialog = page.locator("[role='dialog']")
+        expect(dialog).to_be_visible(timeout=5000)
+        dialog.get_by_role("button", name="Deactivate").click()
+        page.wait_for_timeout(2000)
+
+        # Verify user shows as Inactive in the table (not deleted)
         expect(row).to_contain_text("Inactive", timeout=5000)
