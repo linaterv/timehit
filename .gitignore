@@ -1,45 +1,9 @@
-# Python
 __pycache__/
 *.py[cod]
-*.pyo
 *.egg-info/
-dist/
-build/
-*.egg
-
-# Virtual environment
-venv/
-.venv/
-env/
-
-# Environment variables
 .env
-.env.*
-
-# Django
-db.sqlite3
-media/
-staticfiles/
-*.log
-
-# Docker volumes
-pgadmin/
-pgdata/
-
-# IDE
-.idea/
-.vscode/
-*.swp
-*.swo
-*~
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Node (for Playwright)
+.venv/
+venv/
 node_modules/
-
-# Playwright
-test-results/
-playwright-report/
+.DS_Store
+*.sqlite3
