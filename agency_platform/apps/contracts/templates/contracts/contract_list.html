@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block title %}Contracts — TimeHit{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1>Contracts</h1>
+    <a href="{% url 'contract-create' %}" class="btn btn-primary">Upload Contract</a>
+</div>
+
+<div class="row mb-3 g-2">
+    <div class="col-md-4">
+        <input type="text" class="form-control" placeholder="Search by title, name, company..."
+               name="search" value="{{ search }}"
+               hx-get="{% url 'contract-list' %}"
+               hx-target="#contract-table-body"
+               hx-trigger="keyup changed delay:300ms"
+               hx-include="[name='contract_type'],[name='status'],[name='client'],[name='contractor']">
+    </div>
+    <div class="col-md-2">
+        <select name="contract_type" class="form-select"
+                hx-get="{% url 'contract-list' %}"
+                hx-target="#contract-table-body"
+                hx-trigger="change"
+                hx-include="[name='search'],[name='status'],[name='client'],[name='contractor']">
+            <option value="">All Types</option>
+            {% for val, label in contract_types %}
+            <option value="{{ val }}" {% if selected_type == val %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-2">
+        <select name="status" class="form-select"
+                hx-get="{% url 'contract-list' %}"
+                hx-target="#contract-table-body"
+                hx-trigger="change"
+                hx-include="[name='search'],[name='contract_type'],[name='client'],[name='contractor']">
+            <option value="">All Statuses</option>
+            {% for val, label in contract_statuses %}
+            <option value="{{ val }}" {% if selected_status == val %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-2">
+        <select name="client" class="form-select"
+                hx-get="{% url 'contract-list' %}"
+                hx-target="#contract-table-body"
+                hx-trigger="change"
+                hx-include="[name='search'],[name='contract_type'],[name='status'],[name='contractor']">
+            <option value="">All Clients</option>
+            {% for c in clients %}
+            <option value="{{ c.pk }}" {% if selected_client == c.pk|slugify %}selected{% endif %}>{{ c.company_name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-2">
+        <select name="contractor" class="form-select"
+                hx-get="{% url 'contract-list' %}"
+                hx-target="#contract-table-body"
+                hx-trigger="change"
+                hx-include="[name='search'],[name='contract_type'],[name='status'],[name='client']">
+            <option value="">All Contractors</option>
+            {% for ct in contractors %}
+            <option value="{{ ct.pk }}" {% if selected_contractor == ct.pk|slugify %}selected{% endif %}>{{ ct.user.get_full_name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+</div>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Type</th>
+            <th>Contractor</th>
+            <th>Client</th>
+            <th>Signed Date</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody id="contract-table-body">
+        {% include "contracts/_partial_contract_list.html" %}
+    </tbody>
+</table>
+{% endblock %}

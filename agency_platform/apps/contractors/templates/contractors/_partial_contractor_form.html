@@ -1,0 +1,82 @@
+{% if errors %}
+<div class="alert alert-danger">
+    {% for error in errors %}<p class="mb-0">{{ error }}</p>{% endfor %}
+</div>
+{% endif %}
+
+<form method="post" action="{% url 'contractor-create' %}">
+    {% csrf_token %}
+    <h5 class="mb-3">User Account</h5>
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <label for="email" class="form-label">Email *</label>
+            <input type="email" name="email" id="email" class="form-control" required
+                   value="{{ form_data.email|default:'' }}">
+        </div>
+    </div>
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <label for="first_name" class="form-label">First Name *</label>
+            <input type="text" name="first_name" id="first_name" class="form-control" required
+                   value="{{ form_data.first_name|default:'' }}">
+        </div>
+        <div class="col-md-6">
+            <label for="last_name" class="form-label">Last Name *</label>
+            <input type="text" name="last_name" id="last_name" class="form-control" required
+                   value="{{ form_data.last_name|default:'' }}">
+        </div>
+    </div>
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <label for="phone" class="form-label">Phone</label>
+            <input type="text" name="phone" id="phone" class="form-control"
+                   value="{{ form_data.phone|default:'' }}">
+        </div>
+    </div>
+
+    <hr>
+    <h5 class="mb-3">Contractor Details</h5>
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <label for="company_name" class="form-label">Company Name</label>
+            <input type="text" name="company_name" id="company_name" class="form-control"
+                   value="{{ form_data.company_name|default:'' }}">
+        </div>
+        <div class="col-md-6">
+            <label for="tax_id" class="form-label">Tax ID</label>
+            <input type="text" name="tax_id" id="tax_id" class="form-control"
+                   value="{{ form_data.tax_id|default:'' }}">
+        </div>
+    </div>
+
+    <hr>
+    <h5 class="mb-3">Bank Details</h5>
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <label for="bank_name" class="form-label">Bank Name</label>
+            <input type="text" name="bank_name" id="bank_name" class="form-control"
+                   value="{{ form_data.bank_name|default:'' }}">
+        </div>
+        <div class="col-md-6">
+            <label for="bank_account" class="form-label">Bank Account *</label>
+            <input type="text" name="bank_account" id="bank_account" class="form-control" required
+                   value="{{ form_data.bank_account|default:'' }}">
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label for="address" class="form-label">Address</label>
+        <textarea name="address" id="address" class="form-control" rows="2">{{ form_data.address|default:'' }}</textarea>
+    </div>
+    <div class="mb-3">
+        <label for="notes" class="form-label">Internal Notes</label>
+        <textarea name="notes" id="notes" class="form-control" rows="2">{{ form_data.notes|default:'' }}</textarea>
+        <small class="text-muted">Not visible to the contractor.</small>
+    </div>
+
+    <p class="text-muted">Password will be auto-generated and displayed once after creation.</p>
+    <div class="mt-3">
+        <button type="submit" class="btn btn-primary">Create Contractor</button>
+        <a href="{% url 'contractor-list' %}" class="btn btn-secondary ms-2">Cancel</a>
+    </div>
+</form>

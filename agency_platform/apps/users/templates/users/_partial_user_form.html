@@ -1,0 +1,48 @@
+{% if errors %}
+<div class="alert alert-danger">
+    {% for error in errors %}<p class="mb-0">{{ error }}</p>{% endfor %}
+</div>
+{% endif %}
+
+<form method="post" action="{% url 'user-create' %}">
+    {% csrf_token %}
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <label for="email" class="form-label">Email *</label>
+            <input type="email" name="email" id="email" class="form-control" required
+                   value="{{ form_data.email|default:'' }}">
+        </div>
+    </div>
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <label for="first_name" class="form-label">First Name *</label>
+            <input type="text" name="first_name" id="first_name" class="form-control" required
+                   value="{{ form_data.first_name|default:'' }}">
+        </div>
+        <div class="col-md-6">
+            <label for="last_name" class="form-label">Last Name *</label>
+            <input type="text" name="last_name" id="last_name" class="form-control" required
+                   value="{{ form_data.last_name|default:'' }}">
+        </div>
+    </div>
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <label for="role" class="form-label">Role *</label>
+            <select name="role" id="role" class="form-select" required>
+                <option value="">Select role</option>
+                <option value="admin" {% if form_data.role == 'admin' %}selected{% endif %}>Admin</option>
+                <option value="clerk" {% if form_data.role == 'clerk' %}selected{% endif %}>Clerk</option>
+            </select>
+        </div>
+        <div class="col-md-6">
+            <label for="phone" class="form-label">Phone</label>
+            <input type="text" name="phone" id="phone" class="form-control"
+                   value="{{ form_data.phone|default:'' }}">
+        </div>
+    </div>
+    <p class="text-muted">Password will be auto-generated and displayed once after creation.</p>
+    <div class="mt-3">
+        <button type="submit" class="btn btn-primary">Create User</button>
+        <a href="{% url 'user-list' %}" class="btn btn-secondary ms-2">Cancel</a>
+    </div>
+</form>

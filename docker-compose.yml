@@ -1,0 +1,39 @@
+services:
+  db:
+    image: postgres:17
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME:-timehit}
+      POSTGRES_USER: ${DB_USER:-timehit}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-a}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-timehit} -d ${DB_NAME:-timehit}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: "a@a.a"
+      PGADMIN_DEFAULT_PASSWORD: "a"
+      PGADMIN_LISTEN_PORT: 5050
+    ports:
+      - "5050:5050"
+    user: "5050:5050"
+    volumes:
+      - ./pgadmin/servers.json:/pgadmin4/servers.json:ro
+      - ./pgadmin/pgpass:/tmp/pgpass:ro
+      - pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  pgdata:
+  pgadmin_data:

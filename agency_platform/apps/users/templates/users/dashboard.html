@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard — TimeHit{% endblock %}
+
+{% block content %}
+<h1>Dashboard</h1>
+<p>Welcome, {{ user.get_full_name|default:user.email }}.</p>
+<p class="text-muted">Role: {{ user.get_role_display }}</p>
+{% endblock %}

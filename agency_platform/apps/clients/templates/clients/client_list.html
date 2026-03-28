@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}Clients — TimeHit{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Clients</h1>
+    <a href="{% url 'client-create' %}" class="btn btn-primary">Create Client</a>
+</div>
+
+<div class="row mb-3">
+    <div class="col-md-6">
+        <input type="text"
+               name="search"
+               class="form-control"
+               placeholder="Search by company or contact name…"
+               value="{{ search }}"
+               hx-get="{% url 'client-list' %}"
+               hx-trigger="keyup changed delay:300ms"
+               hx-target="#client-table"
+               hx-include="[name='status']"
+               hx-push-url="true">
+    </div>
+    <div class="col-md-3">
+        <select name="status"
+                class="form-select"
+                hx-get="{% url 'client-list' %}"
+                hx-trigger="change"
+                hx-target="#client-table"
+                hx-include="[name='search']"
+                hx-push-url="true">
+            <option value="">All statuses</option>
+            <option value="active" {% if current_status == "active" %}selected{% endif %}>Active</option>
+            <option value="inactive" {% if current_status == "inactive" %}selected{% endif %}>Inactive</option>
+        </select>
+    </div>
+</div>
+
+<div id="client-table">
+    {% include "clients/_partial_client_list.html" %}
+</div>
+{% endblock %}
