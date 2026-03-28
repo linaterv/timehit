@@ -10,19 +10,21 @@ import {
   Briefcase,
   Users,
   Building2,
+  Shield,
 } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
   SidebarGroup,
   SidebarGroupContent,
+  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 
-const navItems = [
+const mainNavItems = [
   { title: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { title: "Timesheets", href: "/timesheets", icon: Clock },
   { title: "Approvals", href: "/approvals", icon: CheckSquare },
@@ -30,6 +32,10 @@ const navItems = [
   { title: "Placements", href: "/placements", icon: Briefcase },
   { title: "Contractors", href: "/contractors", icon: Users },
   { title: "Clients", href: "/clients", icon: Building2 },
+];
+
+const adminNavItems = [
+  { title: "Users", href: "/admin/users", icon: Shield },
 ];
 
 export function AppSidebar() {
@@ -51,7 +57,7 @@ export function AppSidebar() {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
-              {navItems.map((item) => (
+              {mainNavItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton
                     isActive={pathname.startsWith(item.href)}
@@ -59,6 +65,30 @@ export function AppSidebar() {
                       <Link
                         href={item.href}
                         data-testid={`sidebar-nav-${item.title.toLowerCase()}`}
+                      />
+                    }
+                    tooltip={item.title}
+                  >
+                    <item.icon />
+                    <span>{item.title}</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+        <SidebarGroup>
+          <SidebarGroupLabel>Admin</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {adminNavItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton
+                    isActive={pathname.startsWith(item.href)}
+                    render={
+                      <Link
+                        href={item.href}
+                        data-testid={`sidebar-nav-admin-${item.title.toLowerCase()}`}
                       />
                     }
                     tooltip={item.title}

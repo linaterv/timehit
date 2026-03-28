@@ -1,14 +1,23 @@
-import { Clock } from "lucide-react";
+"use client";
 
-// TODO: Redirect based on auth state and role once auth is wired up
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/lib/auth/context";
+import { Loader2 } from "lucide-react";
+
 export default function Home() {
+  const router = useRouter();
+  const { isAuthenticated, isLoading } = useAuth();
+
+  useEffect(() => {
+    if (!isLoading) {
+      router.replace(isAuthenticated ? "/dashboard" : "/login");
+    }
+  }, [isAuthenticated, isLoading, router]);
+
   return (
-    <div className="flex flex-1 flex-col items-center justify-center gap-4">
-      <Clock className="h-12 w-12 text-muted-foreground" />
-      <h1 className="text-2xl font-semibold">Welcome to TimeHit</h1>
-      <p className="text-muted-foreground">
-        Contractor timesheet and invoicing platform
-      </p>
+    <div className="flex flex-1 items-center justify-center">
+      <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
     </div>
   );
 }
