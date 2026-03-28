@@ -136,18 +136,8 @@ class TestEditUser:
 class TestDeactivateUser:
     """Tests for deactivating a user via the UI."""
 
-    @pytest.mark.xfail(
-        reason="DEFECT: Deactivate button sends DELETE instead of PATCH {is_active: false}. "
-        "User is permanently deleted instead of deactivated."
-    )
     def test_deactivate_user(self, logged_in_admin, created_e2e_user, admin_api_token):
-        """Admin deactivates a user from the actions dropdown.
-
-        DEFECT: The frontend "Deactivate" button sends DELETE /api/users/{id}/
-        (which permanently removes the user) instead of PATCH /api/users/{id}/
-        with {is_active: false}. The user disappears from the table entirely
-        rather than showing as Inactive. This is a data loss bug.
-        """
+        """Admin deactivates a user from the actions dropdown."""
         page = logged_in_admin
         page.get_by_test_id("sidebar-nav-admin-users").click()
         page.wait_for_url("**/admin/users**", timeout=5000)
