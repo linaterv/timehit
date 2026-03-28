@@ -21,14 +21,34 @@ export interface Client {
   id: number;
   name: string;
   contact_email: string;
+  contact_phone: string;
+  address: string;
   is_active: boolean;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface Contractor {
   id: number;
   user: User;
-  default_rate: number;
+  hourly_rate_default: number;
+  phone: string;
   is_active: boolean;
+  created_at: string;
+}
+
+export interface Placement {
+  id: number;
+  contractor: Contractor;
+  client: Client;
+  client_rate: number;
+  contractor_rate: number;
+  margin: number;
+  start_date: string;
+  end_date: string | null;
+  approval_mode: string;
+  is_active: boolean;
+  created_at: string;
 }
 
 export interface PlacementSummary {
@@ -36,18 +56,6 @@ export interface PlacementSummary {
   contractor_name: string;
   client_name: string;
   job_title: string;
-}
-
-export interface Placement {
-  id: number;
-  contractor: Contractor;
-  client: Client;
-  job_title: string;
-  start_date: string;
-  end_date: string | null;
-  client_rate: number;
-  contractor_rate: number;
-  is_active: boolean;
 }
 
 export interface TimesheetEntry {
@@ -60,7 +68,7 @@ export interface TimesheetEntry {
 export interface Timesheet {
   id: number;
   placement: PlacementSummary;
-  month: string; // "2025-03"
+  month: string;
   status: TimesheetStatus;
   entries: TimesheetEntry[];
   total_hours: number;
